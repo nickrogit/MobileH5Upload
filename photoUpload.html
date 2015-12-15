@@ -1,0 +1,218 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+	    <meta charset="utf-8">
+		<meta name="description" content="appstore" />
+		<meta name="keywords" content="appstore" />
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+		<title>Mobile HTML5 Upload</title>
+		<link rel="stylesheet" rev="stylesheet" type="text/css" media="all" href="css/base.css"  />
+		<script type="text/javascript" src="js/zepto.js"></script>
+	</head>
+  
+  <body class="bk-gray">
+    <div class="wrap">
+		<div class="site-main">
+	        <form name="" id="cert_form" class="reg-form btn-full" onsubmit="">
+                <fieldset class="cert-form">
+	                <ul class="cert-ul">
+	                	<li class="form-title">
+	                    	<label>证件信息</label>
+	                    </li>
+	                    <li>
+	                    	<label for="username">组织机构代码证</label>
+	                    	<img src="img/img.jpg">
+	                    	<a href="javascript:void(0);" class="cert-btn-blue-add"><span class="icon-add-white"></span>
+	                    		<input type="file" capture="camera"/>添加图片
+	                    	</a>
+	                    	<a class="cert-arrow-del"></a>
+	                    </li>
+	                    <li>
+	                    	<label for="username">营业执照</label>
+	                    	<a href="javascript:void(0);" class="cert-btn-blue-add"><span class="icon-add-white"></span>
+	                    		<input type="file" capture="camera"/>添加图片
+	                    	</a>
+	                    	<a class="cert-arrow-del"></a>
+	                    </li>
+	                    <li>
+	                    	<label for="username">税务登记证(国税)</label>
+	                    	<a href="javascript:void(0);" class="cert-btn-blue-add"><span class="icon-add-white"></span>
+	                    		<input type="file" capture="camera"/>添加图片
+	                    	</a>
+	                    	<a class="cert-arrow-del"></a>
+	                    </li>
+	                    <li>
+	                    	<label for="username">税务登记证(地税)</label>
+	                    	<a href="javascript:void(0);" class="cert-btn-blue-add"><span class="icon-add-white"></span>
+	                    		<input type="file" capture="camera"/>添加图片
+	                    	</a>
+	                    	<a class="cert-arrow-del"></a>
+	                    </li>
+	                    <li>
+	                    	<label for="username">法人身份证(正面)</label>
+	                    	<a href="javascript:void(0);" class="cert-btn-blue-add"><span class="icon-add-white"></span>
+	                    		<input type="file" capture="camera"/>添加图片
+	                    	</a>
+	                    	<a class="cert-arrow-del"></a>
+	                    </li>
+	                    <li>
+	                    	<label for="username">法人身份证(背面)</label>
+	                    	<a href="javascript:void(0);" class="cert-btn-blue-add"><span class="icon-add-white"></span>
+	                    		<input type="file" capture="camera"/>添加图片
+	                    	</a>
+	                    	<a class="cert-arrow-del"></a>
+	                    </li>
+	                </ul>
+                </fieldset>
+            </form>
+
+            <a class="btn-blue btn-full" href="javascript:void(0)" id="submit_sure">确认并提交</a>
+        </div>
+
+        <div class="" id="loading" style="display:none">
+	    	<div class="pop-loading">
+	    		<i></i><br/>
+	    		<span>正在处理...</span>
+	    	</div>
+	    	<div class="pop-mask-white"></div>
+	    </div>
+
+	    <div class="" id="upload_loading" style="display:none">
+	    	<div class="pop-loading">
+	    		<i></i><br/>
+	    		<span>正在上传...</span>
+	    	</div>
+	    	<div class="pop-mask-white"></div>
+	    </div>
+    </div>
+    
+	
+	<script type="text/javascript">		
+		//初始判断是否已有图
+		var hasimgArr=[false,false,false,false,false,false];		
+		var liobj=$('.cert-form').find('li');
+		var li_len=liobj.length;
+		for(var i=0;i<li_len;i++){
+			if(liobj.eq(i).find('img').length>0){//有图
+				liobj.eq(i).find('a.cert-btn-blue-add').hide();
+				liobj.eq(i).find('a.cert-arrow-del').show();
+				hasimgArr[i-1]=true;
+			}
+		}
+		//input上传	
+		$('input[type=file]').change(function(){
+			/*文件上传loadding*/
+			$('#upload_loading').css('display','block');
+        	var vtop=$("body").scrollTop()+120;
+			$('.pop-loading').css('top',vtop);
+			/*定义对象变量*/
+			var liObj=$(this).parent('a').parent('li');
+			var aObj=$(this).parent('a.cert-btn-blue-add');
+			var liidx=liObj.index();
+			var fileval=$(this).val();
+			var oFile=this.files[0];
+			/*文件格式验证*/
+			var fileval=$(this).val();
+			var suffix=fileval.substring(fileval.lastIndexOf('.')+1,fileval.length);
+			if(suffix!='jpg' && suffix!='png' && suffix!='jpeg'){
+				alert('上传文件类型需为jpg、jpeg、png图片格式');
+				liObj.find('input[type=file]').val('');
+				$('#upload_loading').css('display','none');
+				return false;
+			}
+			/*文件大小验证限制*/
+			if(oFile.size>1024*512*1){
+				alert('图片超过512kb，请到PC端官网上传');
+				liObj.find('input[type=file]').val('');
+				$('#upload_loading').css('display','none');
+				return false;
+			}			
+			/*图片预览及上传*/
+			setTimeout(function(){
+				var oReader = new FileReader();
+				oReader.onload = function(e){
+					var sBase64 = e.target.result;
+					if(window.gIsAndroid && sBase64.indexOf("data:image/") != 0){
+						var sMime = sName.split(".").pop().toLowerCase();
+						sBase64 = sBase64.replace("base64,", "image/" + sMime + ";base64,");
+					}
+					var src=sBase64;
+					var img = new Image();
+					img.onload = function () {
+						liObj.append(img);
+						liObj.find('a.cert-arrow-del').show();
+					};
+					img.src = typeof src === 'string' ? src : URL.createObjectURL(src);
+					/*压缩后重新图片赋值*/
+					//var obj = compress(img,70);
+					//img.src=obj.newImageData;
+					aObj.hide();
+					hasimgArr[liidx-1]=true;
+					sBase64 = null;
+					e.target.result=null;
+					/*上传到服务器*/
+					$.ajax({
+		                type:"POST",
+		                timeout:20000,
+		                url:"upfilehtml.do",
+		                data:{filebase64:src,size:src.length},
+		                dataType: "json",
+		                success: function(data){
+		                	if(data.flag){
+		                		
+		                	}else {
+		                		alert('上传失败，建议到PC端官网上传');
+		                		liObj.find('img').remove();
+		                		liObj.find('a.cert-arrow-del').hide();
+		                		liObj.find('a.cert-btn-blue-add input').val('');
+		                		setTimeout(function(){
+		                			aObj.show();
+		            			},100);
+							}
+		                	$('#upload_loading').css('display','none');
+		                	src=null;
+	                    }
+		            });
+		        };
+		        oReader.readAsDataURL(oFile);
+			},500);
+		});
+		//cavas压缩图片函数（UC,CHROME兼容）
+		function compress(source_img_obj, quality, output_format) {
+	        var mime_type = "image/jpeg";
+	        if(output_format!=undefined && output_format=="png"){
+	          mime_type = "image/png";
+	        }
+	        var cvs = document.createElement('canvas');
+	        cvs.width = source_img_obj.width;
+	        cvs.height = source_img_obj.height;
+	        var ctx = cvs.getContext("2d").drawImage(source_img_obj, 0, 0);
+	        var newImageData = cvs.toDataURL(mime_type, quality/100);
+	        return {
+	          "newImageData": newImageData
+	        };
+	    }
+
+		/*删除重新上传*/
+		$('a.cert-arrow-del').tap(function(){
+			var _this=$(this)
+			$(this).parent('li').find('a.cert-btn-blue-add input').val('');
+			var liidx=$(this).parent('li').index();	
+			hasimgArr[liidx-1]=false;//无图时设置为false
+			$(this).parent('li').find('img').remove();
+			$(this).hide();
+			setTimeout(function(){
+				_this.parent('li').find('a.cert-btn-blue-add').show();
+			},100)
+		})
+
+
+		//确认提交按钮事件
+		$('#submit_sure').tap(function(){
+			var vtop=$("body").scrollTop()+120;
+			$('.pop-loading').css('top',vtop);
+			$('#loading').css('display','block');
+		})
+	</script>
+  </body>
+</html>
